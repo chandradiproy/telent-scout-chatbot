@@ -36,41 +36,44 @@ def main():
     st.title("🤖 TalentScout AI Hiring Assistant")
     st.write("---")
 
+    # --- UI ENHANCEMENT: Sidebar Controls ---
+    st.sidebar.title("Controls")
+    if st.sidebar.button("Start Over"):
+        st.session_state.clear()
+        st.rerun()
+
     initialize_session_state()
 
-    # --- Display Chat History ---
+    # --- UI ENHANCEMENT: Display Chat History with Avatars ---
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+        avatar = "🤖" if message["role"] == "assistant" else "🧑‍💻"
+        with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
     # --- Handle User Input ---
     if st.session_state.conversation_stage != "end":
         if prompt := st.chat_input("Your response..."):
-            # Add user message to chat history
             st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
+            with st.chat_message("user", avatar="🧑‍💻"):
                 st.markdown(prompt)
 
             # --- Assistant's Response ---
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar="🤖"):
                 with st.spinner("Thinking..."):
                     chatbot_instance = st.session_state.chatbot
                     assistant_response = chatbot_instance.handle_response(prompt)
                     
-                    # Simulate stream of response for better UX
                     message_placeholder = st.empty()
                     full_response = ""
                     for chunk in assistant_response.split():
                         full_response += chunk + " "
                         time.sleep(0.05)
-                        # Add a blinking cursor to simulate typing
                         message_placeholder.markdown(full_response + "▌")
                     message_placeholder.markdown(full_response)
             
-            # Add assistant response to chat history
             st.session_state.messages.append({"role": "assistant", "content": full_response})
     else:
-        st.info("This conversation has ended. Thank you for your time!")
+        st.info("This conversation has ended. Thank you for your time! You can start a new conversation by clicking the 'Start Over' button in the sidebar.")
 
 
 if __name__ == "__main__":
