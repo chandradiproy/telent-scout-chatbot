@@ -1,7 +1,6 @@
 # 🤖 TalentScout AI Hiring Assistant
 
-An intelligent, conversational AI chatbot designed to conduct initial candidate screenings for the fictional recruitment agency, "TalentScout". This project leverages Large Language Models (LLMs) via the Groq API to create a dynamic, robust, and user-friendly hiring assistant.
-
+An intelligent, multilingual AI chatbot designed to conduct initial candidate screenings for the fictional recruitment agency, "TalentScout". This project leverages Large Language Models (LLMs) via the Groq API to create a dynamic, robust, and user-friendly hiring assistant that can converse in multiple languages.
 
 ---
 
@@ -9,25 +8,21 @@ An intelligent, conversational AI chatbot designed to conduct initial candidate 
 
 This chatbot is equipped with a comprehensive set of features to streamline the initial hiring process:
 
-* **Conversational Information Gathering**: Sequentially collects key candidate details:
-    * Full Name
-    * Email & Phone Number (with validation)
-    * Years of Experience
-    * Desired Position & Current Location
-    * Primary Tech Stack
-* **Dynamic Technical Questioning**: Generates 4 unique technical questions tailored not only to the candidate's specific **tech stack** but also to their **years of experience**, ensuring relevant difficulty.
+* **Multilingual Support**: The chatbot begins by asking the candidate for their preferred language and conducts the entire interview in that language.
+* **Conversational Information Gathering**: Sequentially collects key candidate details, including name, contact information (with email validation), years of experience, desired position, and tech stack.
+* **Dynamic & Experience-Based Questioning**: Generates 4 unique technical questions tailored not only to the candidate's specific **tech stack** but also to their **years of experience**, ensuring relevant difficulty.
 * **Intelligent Intent Detection**: Employs an LLM-based intent detection layer to handle situations where candidates try to evade questions, providing firm but polite guidance to keep the conversation on track.
 * **Automated Answer Evaluation**: After the candidate provides answers, the system uses a powerful LLM (`llama3-70b-8192`) to:
     * Score each answer individually out of 10.
     * Provide a justification for each score.
-    * Critically assess whether the answer is relevant to the question asked.
+    * Critically assess whether the answer is relevant to the question asked, penalizing irrelevant responses.
     * Calculate an overall score and provide a final summary.
-* **Sentiment Analysis**: Performs an overall sentiment analysis of the entire conversation to gauge the candidate's disposition (Positive, Neutral, Negative).
+* **Sentiment Analysis**: Performs an overall sentiment analysis of the entire conversation to gauge the candidate's disposition (Positive, Neutral, or Negative).
 * **Persistent Data Storage**: All candidate information, Q&A, scoring, and sentiment analysis are saved and appended to a `candidate_data.json` file, creating a persistent record for recruiters.
 * **Enhanced User Interface**: A clean and intuitive UI built with Streamlit, featuring:
     * Avatars for the user and assistant.
-    * A "Start Over" button to easily reset the conversation.
-    * Real-time "thinking" indicators and a simulated typing effect for a better user experience.
+    * A "Start Over" button in the sidebar to easily reset the conversation.
+    * A real-time, character-by-character streaming effect for a dynamic user experience.
 
 ---
 
@@ -134,20 +129,20 @@ This will open a new tab in your default web browser with the chatbot interface 
 
 The effectiveness of this chatbot relies on a multi-layered prompt engineering strategy:
 
-1.  **System Prompt**: A master prompt defines the chatbot's persona, its objective, and its professional boundaries, ensuring it stays on task.
-2.  **Experience-Based Question Generation**: The prompt for generating technical questions is dynamically populated with the candidate's tech stack and years of experience, instructing the LLM to tailor the question difficulty accordingly. We also explicitly instruct it to return *only* a numbered list to avoid conversational filler.
-3.  **Intent Detection**: A specialized prompt is used to classify user input during the Q&A phase. This allows the system to differentiate between a genuine answer and an attempt to evade the question, making the chatbot much more robust.
-4.  **Structured JSON for Evaluation**: The scoring prompt instructs the LLM to act as a critical interviewer and return its evaluation in a strict JSON format. This allows for reliable, programmatic parsing of the results and includes a specific instruction to heavily penalize answers that are not relevant to the questions asked.
+1.  **Language-Aware System Prompt**: The master prompt now dynamically includes the candidate's chosen language, instructing the LLM to conduct the entire interaction in that language.
+2.  **Experience-Based Question Generation**: The prompt for generating technical questions is populated with the candidate's tech stack and experience, instructing the LLM to tailor question difficulty and to return *only* a numbered list.
+3.  **Intent Detection**: A specialized prompt is used to classify user input during the Q&A phase, allowing the system to robustly handle evasive or off-topic responses.
+4.  **Strict JSON for Evaluation**: The scoring prompt instructs the LLM to act as a critical interviewer and return its evaluation in a strict JSON format. It includes a critical instruction to heavily penalize answers that are not relevant to the questions asked.
 
 ---
 
 ## 💡 Challenges and Solutions
 
-* **Challenge**: The LLM would occasionally return conversational text along with the structured JSON data, causing parsing errors.
+* **Challenge**: The LLM would return conversational text along with JSON data, causing parsing errors.
     * **Solution**: The `_call_llm` function was enhanced with a robust regex to search for and extract the JSON block from the raw response, ignoring any surrounding text or markdown fences.
-* **Challenge**: Candidates could provide answers that were technically correct but completely irrelevant to the questions asked, yet still receive a high score.
-    * **Solution**: The scoring prompt was updated with a **critical instruction** to first validate the relevance of an answer to its question and to assign a very low score if they did not match.
-* **Challenge**: The chatbot followed a rigid conversation flow and was easily derailed by unexpected user inputs (e.g., asking to regenerate questions).
-    * **Solution**: An intent detection layer was implemented. This allows the chatbot to understand the user's intent before acting, enabling it to gracefully handle evasive or off-topic responses.
+* **Challenge**: The chatbot would ask the wrong question at the wrong time (e.g., asking for an email after receiving the name).
+    * **Solution**: The state management logic in `handle_response` was rewritten to be more explicit. It now processes the input for the *current* state before advancing to the *next* state, ensuring the conversation flows correctly.
+* **Challenge**: The multilingual feature initially failed, with the chatbot reverting to English for simple conversational turns.
+    * **Solution**: The hardcoded English responses in the `conversation_stages` list were replaced with dynamic instructions. The chatbot now uses the LLM to generate *every* response, ensuring it always adheres to the user's selected language.
 
 ---
