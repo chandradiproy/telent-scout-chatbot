@@ -16,14 +16,16 @@ def initialize_session_state():
     """Initializes session state variables if they don't exist."""
     if "messages" not in st.session_state:
         st.session_state.messages = []
+        # Update the initial greeting to ask for the language
         st.session_state.messages.append(
             {
                 "role": "assistant",
-                "content": "Hello! I'm an intelligent Hiring Assistant from TalentScout. I'm here to ask you a few questions to get started. What is your full name?"
+                "content": "Welcome! I am the TalentScout AI Hiring Assistant. To begin, please tell me which language you would like to conduct this interview in (e.g., English, Spanish, French)."
             }
         )
     if "conversation_stage" not in st.session_state:
-        st.session_state.conversation_stage = "get_name"
+        # Set the initial stage to our new language stage
+        st.session_state.conversation_stage = "get_language"
     if "candidate_info" not in st.session_state:
         st.session_state.candidate_info = {}
     if "chatbot" not in st.session_state:
@@ -35,7 +37,6 @@ def main():
     st.title("🤖 TalentScout AI Hiring Assistant")
     st.write("---")
 
-    # --- Sidebar for Controls ---
     st.sidebar.title("Controls")
     if st.sidebar.button("Start Over"):
         st.session_state.clear()
@@ -47,8 +48,6 @@ def main():
     for message in st.session_state.messages:
         avatar = "🤖" if message["role"] == "assistant" else "🧑‍💻"
         with st.chat_message(message["role"], avatar=avatar):
-            # To render newlines correctly in Streamlit's markdown,
-            # replace single newlines with two spaces followed by a newline.
             st.markdown(message["content"].replace('\n', '  \n'))
 
     # --- Handle User Input ---
@@ -63,16 +62,12 @@ def main():
                     chatbot_instance = st.session_state.chatbot
                     assistant_response = chatbot_instance.handle_response(prompt)
                     
-                    # --- BUG FIX: Simplified Streaming Logic ---
-                    # This new logic streams character by character to reliably handle newlines.
                     message_placeholder = st.empty()
                     full_response = ""
                     for char in assistant_response:
                         full_response += char
-                        time.sleep(0.01) # A shorter sleep time for smoother character streaming
-                        # Correctly render newlines during the stream
+                        time.sleep(0.01)
                         message_placeholder.markdown(full_response.replace('\n', '  \n') + "▌")
-                    # Display the final, complete response without the cursor
                     message_placeholder.markdown(full_response.replace('\n', '  \n'))
             
             st.session_state.messages.append({"role": "assistant", "content": full_response})

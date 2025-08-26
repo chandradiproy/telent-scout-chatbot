@@ -29,36 +29,40 @@ class Chatbot:
     """Handles the chatbot's conversation logic and state."""
 
     def __init__(self):
+        # BUG FIX: The instructions are now correctly aligned with the stage they are for.
         self.conversation_stages = [
-            ("get_name", "This is unused."),
-            ("get_email", "Great, thank you. What is your email address?"),
-            ("get_phone", "Thanks. What is your phone number?"),
-            ("get_experience", "Perfect. How many years of professional experience do you have?"),
-            ("get_position", "Understood. What position or positions are you interested in?"),
-            ("get_location", "Noted. What is your current location? (e.g., City, Country)"),
-            ("get_tech_stack", "Excellent. Could you please list your primary tech stack? (e.g., Python, React, AWS)"),
+            # The first prompt is hardcoded in app.py, so this stage is just for state
+            ("get_language", "This is a placeholder as the first real question is for the name."),
+            # After getting the language, we transition to 'get_name' and ask this question
+            ("get_name", "Ask for the user's full name."),
+            # After getting the name, we transition to 'get_email' and ask this question
+            ("get_email", "Ask for the user's email address."),
+            # And so on...
+            ("get_phone", "Ask for the user's phone number."),
+            ("get_experience", "Ask for the user's years of professional experience."),
+            ("get_position", "Ask for the position they are interested in."),
+            ("get_location", "Ask for their current location."),
+            ("get_tech_stack", "Ask them to list their primary tech stack."),
             ("tech_questions_generated", self._generate_tech_questions),
             ("tech_answers_provided", self._score_answers),
             ("scoring_done", "This is unused."),
         ]
 
-    def _get_next_stage(self, current_stage_name):
-        """Finds the next stage in the conversation flow."""
-        for i, (stage_name, _) in enumerate(self.conversation_stages):
-            if stage_name == current_stage_name:
-                if i + 1 < len(self.conversation_stages):
-                    return self.conversation_stages[i + 1]
-        return None, None
+    def _get_stage_instruction(self, stage_name):
+        """Finds the instruction for a given stage."""
+        for name, instruction in self.conversation_stages:
+            if name == stage_name:
+                return instruction
+        return None
 
-    def _call_llm(self, prompt, model="llama3-8b-8192", temperature=0.5, json_only=False):
-        """
-        Helper function to make a call to the Groq API.
-        If json_only is True, it will attempt to extract the JSON block from the response.
-        """
+    def _call_llm(self, prompt, model="llama3-8b-8192", temperature=0.7, json_only=False):
+        """Helper function to make a call to the Groq API, now language-aware."""
+        language = st.session_state.candidate_info.get("language", "English")
+        
         try:
             chat_completion = CLIENT.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": templates.get_system_prompt()},
+                    {"role": "system", "content": templates.get_system_prompt(language)},
                     {"role": "user", "content": prompt},
                 ],
                 model=model,
@@ -67,17 +71,14 @@ class Chatbot:
             response_text = chat_completion.choices[0].message.content.strip()
 
             if json_only:
-                # BUG FIX: More robust JSON extraction that handles optional markdown fences.
                 json_match = re.search(r'```(json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
                 if json_match:
-                    # If markdown fences are found, extract the content within them
                     return json_match.group(2)
                 else:
-                    # If no markdown, fall back to finding the first curly brace
                     json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
                     if json_match:
                         return json_match.group(0)
-                return None # Return None if no JSON is found
+                return None
             
             return response_text
 
@@ -92,14 +93,29 @@ class Chatbot:
         return intent
 
     def handle_response(self, user_prompt: str):
-        """Processes the user's response based on intent and conversation stage."""
-        current_stage = st.session_state.get("conversation_stage", "get_name")
+        """Processes the user's response with a more robust state machine."""
+        current_stage = st.session_state.get("conversation_stage", "get_language")
 
         if user_prompt.lower() in ["exit", "quit", "bye"]:
             st.session_state.conversation_stage = "end"
             return "Thank you for your time. Have a great day!"
 
-        if current_stage == "tech_questions_generated":
+        # --- More explicit state handling and validation logic ---
+        # Process the input for the CURRENT stage first.
+        if current_stage == "get_language":
+            st.session_state.candidate_info['language'] = user_prompt
+        elif current_stage == "get_name":
+            st.session_state.candidate_info['name'] = user_prompt
+        elif current_stage == "get_email":
+            if not helpers.is_valid_email(user_prompt):
+                # If validation fails, return an error message without changing the stage.
+                return self._call_llm("The user provided an invalid email. Politely ask them to provide a valid one.")
+            st.session_state.candidate_info['email'] = user_prompt
+        elif current_stage.startswith("get_"):
+            field_name = current_stage.split("get_")[1]
+            st.session_state.candidate_info[field_name] = user_prompt
+        
+        elif current_stage == "tech_questions_generated":
             intent = self._detect_intent(user_prompt, current_stage)
             is_likely_not_an_answer = len(user_prompt.split()) < 15
 
@@ -108,22 +124,21 @@ class Chatbot:
                 st.session_state.conversation_stage = "tech_answers_provided"
                 return self._score_answers()
             else:
-                return "My purpose is to collect your answers to the questions provided. Please provide a detailed response for each question to proceed."
+                return self._call_llm("The user is trying to evade the question. Politely but firmly ask them to answer the questions provided.")
 
-        if current_stage.startswith("get_"):
-            field_name = current_stage.split("get_")[1]
-            if field_name == "email" and not helpers.is_valid_email(user_prompt):
-                return "That doesn't look like a valid email address. Could you please try again?"
-            st.session_state.candidate_info[field_name] = user_prompt
-        
-        next_stage, next_response_or_func = self._get_next_stage(current_stage)
-        if next_stage:
-            st.session_state.conversation_stage = next_stage
-            if callable(next_response_or_func):
-                return next_response_or_func()
-            return next_response_or_func
+        # Now, find the NEXT stage and get its instruction.
+        next_stage_index = [i for i, (name, _) in enumerate(self.conversation_stages) if name == current_stage][0] + 1
+        if next_stage_index < len(self.conversation_stages):
+            next_stage_name, next_instruction = self.conversation_stages[next_stage_index]
+            st.session_state.conversation_stage = next_stage_name
+            
+            if callable(next_instruction):
+                return next_instruction()
+            else:
+                return self._call_llm(next_instruction)
 
-        return "Thank you. A recruiter will be in touch shortly."
+        return self._call_llm("The interview is complete. Thank the user and end the conversation.")
+
 
     def _generate_tech_questions(self):
         """Generates technical questions tailored to the candidate's experience."""
@@ -135,15 +150,16 @@ class Chatbot:
         
         if questions:
             st.session_state.candidate_info['tech_questions_asked'] = questions
-            response = (
-                f"Great, thank you. Based on your experience, here are a few technical questions for you:\n\n---\n\n{questions}\n\n---\n\n"
-                "Please answer each question clearly. You can number your answers (e.g., 1., 2., etc.) to correspond with the questions."
+            instruction = (
+                f"You have generated the following questions:\n---\n{questions}\n---\n"
+                "Now, present these questions to the user. Start by saying 'Great, thank you. Based on your experience, here are a few technical questions for you:'. "
+                "Then, list the questions. Finally, instruct them to answer each question clearly and that they can number their answers."
             )
             st.session_state.conversation_stage = "tech_questions_generated"
-            return response
+            return self._call_llm(instruction)
         else:
             st.session_state.conversation_stage = "scoring_done"
-            return "I'm having trouble generating questions right now. A recruiter will be in touch."
+            return self._call_llm("I'm having trouble generating questions right now. Apologize and say a recruiter will be in touch.")
 
     def _save_results_to_json_file(self, score_data):
         """Performs sentiment analysis and saves the complete candidate profile to a JSON file."""
@@ -182,7 +198,7 @@ class Chatbot:
         answers = st.session_state.candidate_info.get('tech_question_answers')
         
         if not questions or not answers:
-            return "Something went wrong. A recruiter will be in touch."
+            return self._call_llm("Something went wrong and I can't find the questions or answers. Apologize and say a recruiter will be in touch.")
 
         prompt = templates.get_scoring_prompt(questions, answers)
         with st.spinner("Evaluating your answers..."):
@@ -194,10 +210,11 @@ class Chatbot:
             try:
                 score_data = json.loads(score_response)
                 self._save_results_to_json_file(score_data)
-                return "Thank you for your responses. That's all the information I need for now. A recruiter from TalentScout will review your details and get in touch with you soon. Have a great day!"
+                final_message_instruction = "Inform the user that this concludes the screening, thank them for their responses, and let them know a recruiter will be in touch soon. Wish them a great day."
+                return self._call_llm(final_message_instruction)
             except json.JSONDecodeError:
                 self._save_results_to_json_file({"error": "Failed to parse score JSON.", "raw_response": score_response})
-                return "Your answers have been saved, but there was an issue with the automated evaluation. A recruiter will review them manually. Thank you for your time."
+                return self._call_llm("Apologize that there was an issue with automated evaluation, but confirm their answers were saved for manual review. Thank them for their time.")
         else:
             self._save_results_to_json_file({"error": "Failed to generate score."})
-            return "I'm having trouble evaluating the answers right now, but they have been saved. A recruiter will review them manually. Thank you for your time."
+            return self._call_llm("Apologize that you are having trouble evaluating the answers, but confirm they have been saved for manual review. Thank them for their time.")
