@@ -5,6 +5,7 @@ import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
 import json
+import re
 from datetime import datetime
 
 from src.prompts import templates
@@ -49,8 +50,11 @@ class Chatbot:
                     return self.conversation_stages[i + 1]
         return None, None
 
-    def _call_llm(self, prompt, model="llama3-8b-8192", temperature=0.5):
-        """Helper function to make a call to the Groq API."""
+    def _call_llm(self, prompt, model="llama3-8b-8192", temperature=0.5, json_only=False):
+        """
+        Helper function to make a call to the Groq API.
+        If json_only is True, it will attempt to extract the JSON block from the response.
+        """
         try:
             chat_completion = CLIENT.chat.completions.create(
                 messages=[
@@ -60,7 +64,23 @@ class Chatbot:
                 model=model,
                 temperature=temperature,
             )
-            return chat_completion.choices[0].message.content.strip()
+            response_text = chat_completion.choices[0].message.content.strip()
+
+            if json_only:
+                # BUG FIX: More robust JSON extraction that handles optional markdown fences.
+                json_match = re.search(r'```(json)?\s*(\{.*?\})\s*```', response_text, re.DOTALL)
+                if json_match:
+                    # If markdown fences are found, extract the content within them
+                    return json_match.group(2)
+                else:
+                    # If no markdown, fall back to finding the first curly brace
+                    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                    if json_match:
+                        return json_match.group(0)
+                return None # Return None if no JSON is found
+            
+            return response_text
+
         except Exception as e:
             st.error(f"An API error occurred: {e}")
             return None
@@ -106,16 +126,17 @@ class Chatbot:
         return "Thank you. A recruiter will be in touch shortly."
 
     def _generate_tech_questions(self):
-        """Generates technical questions and instructs the user on how to answer."""
+        """Generates technical questions tailored to the candidate's experience."""
         tech_stack = st.session_state.candidate_info.get("tech_stack", "general software development")
-        experience = st.session_state.candidate_info.get("experience", "0")
+        experience = st.session_state.candidate_info.get("experience", "1")
+        
         prompt = templates.get_tech_questions_prompt(tech_stack, experience)
-        questions = self._call_llm(prompt)
+        questions = self._call_llm(prompt, temperature=0.6)
         
         if questions:
             st.session_state.candidate_info['tech_questions_asked'] = questions
             response = (
-                f"Great, thank you. Here are a few technical questions for you:\n\n---\n\n{questions}\n\n---\n\n"
+                f"Great, thank you. Based on your experience, here are a few technical questions for you:\n\n---\n\n{questions}\n\n---\n\n"
                 "Please answer each question clearly. You can number your answers (e.g., 1., 2., etc.) to correspond with the questions."
             )
             st.session_state.conversation_stage = "tech_questions_generated"
@@ -125,12 +146,21 @@ class Chatbot:
             return "I'm having trouble generating questions right now. A recruiter will be in touch."
 
     def _save_results_to_json_file(self, score_data):
-        """Saves the complete candidate profile to a JSON file, appending to existing data."""
+        """Performs sentiment analysis and saves the complete candidate profile to a JSON file."""
+        conversation_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in st.session_state.messages])
+        sentiment_prompt = templates.get_sentiment_analysis_prompt(conversation_history)
+        sentiment_response = self._call_llm(sentiment_prompt, temperature=0.1, json_only=True)
+        
+        try:
+            sentiment_data = json.loads(sentiment_response) if sentiment_response else {"error": "Sentiment analysis failed to return a response."}
+        except (json.JSONDecodeError, TypeError):
+            sentiment_data = {"error": "Failed to parse sentiment JSON.", "raw_response": sentiment_response}
+        
+        st.session_state.candidate_info['sentiment_analysis'] = sentiment_data
         st.session_state.candidate_info['score_feedback'] = score_data
         st.session_state.candidate_info['interview_timestamp'] = datetime.now().isoformat()
         
         try:
-            # Read existing data from the file
             if os.path.exists(CANDIDATE_DATA_FILE) and os.path.getsize(CANDIDATE_DATA_FILE) > 0:
                 with open(CANDIDATE_DATA_FILE, "r") as f:
                     all_candidates_data = json.load(f)
@@ -139,10 +169,8 @@ class Chatbot:
         except (json.JSONDecodeError, FileNotFoundError):
             all_candidates_data = []
 
-        # Append new candidate data
         all_candidates_data.append(st.session_state.candidate_info)
 
-        # Write all data back to the file
         with open(CANDIDATE_DATA_FILE, "w") as f:
             json.dump(all_candidates_data, f, indent=4)
         
@@ -158,18 +186,16 @@ class Chatbot:
 
         prompt = templates.get_scoring_prompt(questions, answers)
         with st.spinner("Evaluating your answers..."):
-            score_response = self._call_llm(prompt, model="llama3-70b-8192", temperature=0.1)
+            score_response = self._call_llm(prompt, model="llama3-70b-8192", temperature=0.1, json_only=True)
         
         st.session_state.conversation_stage = "end"
 
         if score_response:
             try:
-                # The primary change: parse the LLM's string response into a Python dict
                 score_data = json.loads(score_response)
                 self._save_results_to_json_file(score_data)
                 return "Thank you for your responses. That's all the information I need for now. A recruiter from TalentScout will review your details and get in touch with you soon. Have a great day!"
             except json.JSONDecodeError:
-                # Fallback if the LLM fails to return valid JSON
                 self._save_results_to_json_file({"error": "Failed to parse score JSON.", "raw_response": score_response})
                 return "Your answers have been saved, but there was an issue with the automated evaluation. A recruiter will review them manually. Thank you for your time."
         else:

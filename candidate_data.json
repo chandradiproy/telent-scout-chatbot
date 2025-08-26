@@ -1,238 +1,44 @@
 [
     {
-        "name": "Chandradip Roy",
-        "email": "official.chandradip@gmail.com",
-        "phone": "9875563210",
-        "experience": "1",
+        "name": "Chandradip ROy",
+        "email": "gmail@gmail.com",
+        "phone": "9874563210",
+        "experience": "9",
         "position": "Web Developer",
         "location": "Udupi, India",
-        "tech_stack": "MERN",
-        "tech_questions_asked": "Based on the MERN tech stack, here are four technical questions to gauge a candidate's proficiency:\n\n1. What is the main difference between MongoDB's document-based data model and a relational database management system like MySQL? How would you decide which one to use for a particular project?\n\n2. In a MERN application, how would you handle the conversion of JavaScript objects to JSON and vice versa, and why is this important for data transmission between the client and server?\n\n3. What is the purpose of the `async/await` syntax in Node.js, and how does it improve the readability and maintainability of asynchronous code? Can you provide an example of its usage?\n\n4. How would you implement authentication and authorization in a MERN application, and what are some common security considerations you would take into account when implementing these features?\n\nThese questions are designed to assess the candidate's understanding of the MERN tech stack and their ability to apply it to real-world scenarios.",
-        "tech_question_answers": "1. MongoDB vs MySQL \u2013 Main Difference & Usage Decision\n\nDifference:\n\nMongoDB is document-based (NoSQL), storing data in flexible JSON-like documents.\n\nMySQL is relational (SQL), using structured tables with fixed schemas.\n\nWhen to use:\n\nMongoDB \u2192 best for projects with unstructured/rapidly changing data, scalability, or hierarchical relationships (e.g., chat apps, social media).\n\nMySQL \u2192 best when data integrity, transactions, and complex joins are critical (e.g., banking, e-commerce orders).\n\n2. Conversion of JS Objects \u2194 JSON in MERN Apps\n\nIn MERN, data must move between client (React) and server (Node/Express).\n\nConversion:\n\nJSON.stringify(object) \u2192 convert JS object to JSON before sending to backend.\n\nJSON.parse(jsonString) \u2192 convert JSON back to JS object for frontend use.\n\nImportance: Ensures consistent data transmission between client and server in a standardized format (JSON), making APIs language-agnostic and preventing type mismatches.\n\n3. Purpose of async/await in Node.js\n\nPurpose: Makes asynchronous code look and behave like synchronous code. It avoids \"callback hell\" and improves readability and maintainability.\n\nExample:\n\nasync function getUserData(id) {\n  try {\n    const user = await User.findById(id);   // waits for DB result\n    return user;\n  } catch (err) {\n    console.error(err);\n  }\n}\n\n\nBenefit: Cleaner flow, easier error handling with try/catch, and better debugging compared to raw callbacks or .then() chains.\n\n4. Authentication & Authorization in MERN\n\nAuthentication:\n\nVerify user identity (e.g., login with email/password).\n\nTypically use JWT (JSON Web Token) or sessions. On login, generate a token and send it to the client, which attaches it in headers for every request.\n\nAuthorization:\n\nDefine user roles (e.g., admin, regular user).\n\nMiddleware checks the JWT and ensures the user has permission before granting access to routes.\n\nSecurity considerations:\n\nHash passwords with bcrypt before storing.\n\nUse HTTPS for secure data transfer.\n\nSet token expiry and refresh tokens.\n\nPrevent XSS and CSRF attacks with proper headers.",
-        "score_feedback": {
-            "evaluation": [
-                {
-                    "question_number": 1,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and accurate explanation of the differences between MongoDB and MySQL."
-                },
-                {
-                    "question_number": 2,
-                    "score": 8,
-                    "justification": "The candidate correctly explained the conversion of JavaScript objects to JSON and vice versa, but could have provided more details on the importance of JSON in MERN applications."
-                },
-                {
-                    "question_number": 3,
-                    "score": 8,
-                    "justification": "The candidate accurately explained the purpose of async/await in Node.js and provided a good example, but could have elaborated more on its benefits."
-                },
-                {
-                    "question_number": 4,
-                    "score": 9,
-                    "justification": "The candidate provided a comprehensive explanation of authentication and authorization in MERN applications, including security considerations."
-                }
-            ],
-            "overall_score": 8.5,
-            "summary": "The candidate demonstrates a strong understanding of the MERN tech stack and its applications, with clear and concise explanations and examples."
-        },
-        "interview_timestamp": "2025-08-26T21:48:31.576187"
-    },
-    {
-        "name": "Jhon Doe",
-        "email": "jhon@gmail.com",
-        "phone": "7894561230",
-        "experience": "3",
-        "position": "Software Developer",
-        "location": "Manipal, India",
-        "tech_stack": "HTML, CSS, JavaScript",
-        "tech_questions_asked": "Here are 4 technical questions tailored to the tech stack of HTML, CSS, and JavaScript:\n\n1. What is the difference between the `innerHTML` and `outerHTML` properties in JavaScript, and when would you use each? Can you provide an example of when `outerHTML` would be more suitable than `innerHTML`?\n\n2. How would you optimize the performance of a web page that heavily relies on CSS animations, and what are some common pitfalls to avoid when using animations in CSS?\n\n3. Can you explain the concept of a \"closure\" in JavaScript and provide an example of how it can be used to create a reusable function? How would you debug an issue where a closure is not behaving as expected?\n\n4. What is the difference between using `display: block` and `display: inline-block` for a CSS element, and when would you choose one over the other? Can you provide an example of a use case where `display: inline-block` would be more suitable than `display: block`?\n\nThese questions aim to assess the candidate's understanding of fundamental concepts and their ability to apply them in practical scenarios.",
-        "tech_question_answers": "When working with the DOM in JavaScript, innerHTML represents only the content inside an element, while outerHTML includes the element itself plus its content. For example, if you want to replace just the text or markup inside a <div>, you\u2019d use innerHTML. But if you need to completely replace the element \u2014 say swapping out a <p> with an <h2> \u2014 then outerHTML makes more sense. A practical case is dynamically changing a card component into another type of element without leaving the wrapper behind.\n\nFor CSS animations, performance often comes down to which properties you animate. Animating layout-related properties like width or top triggers reflows and is expensive. Instead, sticking to properties like transform and opacity keeps animations smooth because they can run on the GPU. Another optimization is reducing unnecessary repaints, avoiding large box shadows or gradients in motion, and using will-change sparingly for elements you know will animate. The pitfall to avoid is overusing animations everywhere\u2014too many moving elements can actually degrade both performance and usability.\n\nClosures in JavaScript are essentially functions that \u201cremember\u201d the scope in which they were created, even after that scope has finished executing. They\u2019re great for creating reusable logic. For example, a function that generates counters can return another function that increments a private variable each time it\u2019s called. That private variable lives inside the closure. If a closure doesn\u2019t behave as expected, the bug is often due to scoping issues \u2014 for instance, variables being shared across loops unintentionally. Debugging usually means inspecting which scope the closure is capturing and using console logs or the debugger to step through.\n\nFinally, when it comes to display: block versus display: inline-block, a block element always starts on a new line and takes the full width, whereas inline-block sits inline with other elements but still allows you to apply width, height, and margin. Inline-block is especially useful when you want horizontally aligned items, like navigation links, where each needs its own box model behavior without breaking onto a new line. If you used block instead, each link would stack vertically, which isn\u2019t ideal for a nav bar.",
-        "score_feedback": {
-            "evaluation": [
-                {
-                    "question_number": 1,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and accurate explanation of the difference between innerHTML and outerHTML."
-                },
-                {
-                    "question_number": 2,
-                    "score": 8,
-                    "justification": "The candidate provided a good overview of CSS animation optimization, but could have mentioned more specific techniques."
-                },
-                {
-                    "question_number": 3,
-                    "score": 8,
-                    "justification": "The candidate demonstrated a good understanding of closures, but could have provided more detailed examples of debugging techniques."
-                },
-                {
-                    "question_number": 4,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and accurate explanation of the difference between display: block and display: inline-block."
-                }
-            ],
-            "overall_score": 8.5,
-            "summary": "The candidate demonstrates a strong understanding of core HTML, CSS, and JavaScript concepts, with a good ability to apply them in practical scenarios."
-        },
-        "interview_timestamp": "2025-08-26T21:51:11.660637"
-    },
-    {
-        "name": "Alex",
-        "email": "alex@yahoo.com",
-        "phone": "66547989123",
-        "experience": "2",
-        "position": "web developer",
-        "location": "california",
-        "tech_stack": "HTML, CSS, JS",
-        "tech_questions_asked": "Based on the provided tech stack, here are 4 specific technical questions to gauge a candidate's proficiency:\n\n1. What is the difference between HTML5 semantic elements and non-semantic elements? Provide an example of each and explain their use cases.\n\n2. Can you describe the concept of CSS preprocessors like Sass or Less? How do they enhance the CSS development process?\n\n3. What is the purpose of the `this` keyword in JavaScript, and how is it commonly used in object-oriented programming? Provide an example of its usage in a JavaScript function.\n\n4. How do you handle conflicts between CSS stylesheets loaded from different sources (e.g., internal styles, external stylesheets, and inline styles)? Can you provide an example of a solution you would implement?\n\nThese questions are designed to assess the candidate's understanding of HTML, CSS, and JavaScript, as well as their problem-solving skills and ability to apply their knowledge to real-world scenarios.",
-        "tech_question_answers": "1. HTML is also known as Hyper Text Markup Language\n2. CSS is also known as Cascading Style sheet\n3. Javascript is a scripting language\n4. The inline css have the highest precedence",
-        "score_feedback": {
-            "evaluation": [
-                {
-                    "question_number": 1,
-                    "score": 2,
-                    "justification": "The candidate failed to address the difference between HTML5 semantic and non-semantic elements."
-                },
-                {
-                    "question_number": 2,
-                    "score": 1,
-                    "justification": "The candidate only provided the expansion of CSS, failing to explain the concept of CSS preprocessors."
-                },
-                {
-                    "question_number": 3,
-                    "score": 1,
-                    "justification": "The candidate only provided a basic definition of JavaScript, failing to explain the purpose and usage of the 'this' keyword."
-                },
-                {
-                    "question_number": 4,
-                    "score": 3,
-                    "justification": "The candidate partially addressed the question by stating that inline CSS has the highest precedence, but failed to provide a solution to handle conflicts between CSS stylesheets."
-                }
-            ],
-            "overall_score": 1.75,
-            "summary": "The candidate demonstrates a lack of understanding of the core concepts in HTML, CSS, and JavaScript, and struggles to provide relevant examples and solutions."
-        },
-        "interview_timestamp": "2025-08-26T21:53:40.917620"
-    },
-    {
-        "name": "chandradip roy",
-        "email": "official.chandradip@gmail.com",
-        "phone": "9874563210",
-        "experience": "2",
-        "position": "Web Developer",
-        "location": "udupi, india",
         "tech_stack": "Python",
-        "tech_questions_asked": "Based on the provided tech stack, \"Python\", I've generated four relevant and insightful technical questions for an initial screening:\n\n1. What is the purpose of the `with` statement in Python, and how does it help with resource management? Can you provide an example of its usage?\n\n2. How would you implement a decorator in Python to log the execution time of a function? Please provide the code snippet.\n\n3. What is the difference between `list` and `tuple` in Python? When would you use each, and why? Provide an example of when you would use each.\n\n4. Can you explain the concept of generators in Python? How would you use a generator to iterate over a large dataset without loading the entire dataset into memory?\n\nThese questions are designed to assess the candidate's understanding of fundamental Python concepts, their problem-solving skills, and their ability to apply Python syntax and semantics to real-world scenarios.",
-        "tech_question_answers": "1. Purpose of with in Python\n\nThe with statement is used for context management, ensuring resources are acquired and released properly. It\u2019s most common with file handling, where it automatically closes the file even if an error occurs.\nExample:\n\n# without 'with' \u2192 need to remember file.close()\nwith open(\"data.txt\", \"r\") as f:\n    content = f.read()\n# file is automatically closed here\n\n\nThis helps prevent resource leaks and makes code cleaner.\n\n2. Decorator for Logging Execution Time\n\nA decorator wraps a function to add extra behavior. For execution time logging:\n\nimport time\nfrom functools import wraps\n\ndef log_time(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        end = time.time()\n        print(f\"{func.__name__} executed in {end - start:.4f} seconds\")\n        return result\n    return wrapper\n\n@log_time\ndef slow_function():\n    time.sleep(2)\n\nslow_function()   # \u2192 prints execution time\n\n\nThis is useful for performance monitoring and debugging.\n\n3. Difference Between List and Tuple\n\nList \u2192 Mutable, allows modifications (add, remove, update).\n\nTuple \u2192 Immutable, cannot be modified after creation.\n\nWhen to use:\n\nUse list when you need dynamic data structures, e.g., storing items in a shopping cart.\n\nUse tuple when data shouldn\u2019t change, e.g., storing fixed coordinates (lat, long).\n\nExample:\n\nmy_list = [1, 2, 3]   # can append or modify\nmy_tuple = (10.0, 20.0)  # represents fixed GPS coordinates\n\n4. Concept of Generators\n\nGenerators are functions that use yield to produce values lazily, one at a time, instead of loading everything into memory. They\u2019re great for large datasets.\n\nExample \u2013 Iterating over large file:\n\ndef read_large_file(file_path):\n    with open(file_path, \"r\") as f:\n        for line in f:\n            yield line.strip()  # yields one line at a time\n\nfor row in read_large_file(\"bigdata.txt\"):\n    print(row)  # processes without loading entire file\n\n\nThis avoids memory overload and improves efficiency when handling huge data streams.",
+        "tech_questions_asked": "1. What are some key differences between Python's dynamic typing and static typing, and how would you approach type hinting in a large-scale Python project?\n2. How would you design a scalable data pipeline in Python to handle high-volume data processing, and what tools would you use to implement it?\n3. Can you describe a scenario where you would use Python's multiprocessing module to improve the performance of a CPU-bound task, and how would you optimize the process for maximum efficiency?\n4. How do you approach optimizing the memory usage of a Python application, particularly when dealing with large datasets, and what strategies would you use to prevent memory-related issues?",
+        "tech_question_answers": "Python\u2019s dynamic typing allows variables to change types at runtime, making development faster and more flexible, while static typing enforces type definitions at compile time, which can prevent errors early but is less flexible. In large-scale Python projects, I use type hinting with the typing module to make the codebase easier to understand, catch potential issues with tools like mypy, and improve IDE support for maintainability.\n\nWhen designing a scalable data pipeline in Python, I would structure it into stages such as ingestion, transformation, and storage. For high-volume data, I\u2019d rely on tools like Apache Kafka for streaming, Apache Spark or Dask for distributed processing, and databases like PostgreSQL or NoSQL stores for persistence. I\u2019d also containerize the pipeline using Docker and orchestrate it with tools like Airflow to ensure scalability, reliability, and monitoring.\n\nA good scenario for Python\u2019s multiprocessing module is when dealing with CPU-bound tasks like image processing, numerical computations, or model training where the Global Interpreter Lock (GIL) becomes a bottleneck. By distributing work across multiple processes, each running in its own memory space, performance improves significantly. To optimize efficiency, I\u2019d use process pools, avoid excessive inter-process communication, and carefully balance workload distribution.\n",
         "sentiment_analysis": {
-            "error": "Failed to parse sentiment JSON.",
-            "raw_response": "Here is the analysis of the sentiment of the conversation:\n\n{\n  \"sentiment\": \"Neutral\",\n  \"justification\": \"The conversation started with a neutral tone, with the candidate providing their name and contact information. The candidate's answers to the technical questions were detailed and showed an effort to understand the concepts, but they also showed some uncertainty and asked for simpler questions. The assistant remained professional and polite throughout the conversation, providing guidance and clarification when needed.\"\n}"
+            "sentiment": "Positive",
+            "justification": "The conversation is positive because the candidate is cooperative, providing detailed and relevant answers to the questions, and the hiring assistant is professional and encouraging, guiding the candidate through the process."
         },
         "score_feedback": {
             "evaluation": [
                 {
                     "question_number": 1,
                     "score": 9,
-                    "justification": "The candidate provided a clear and concise explanation of the with statement's purpose and usage."
+                    "justification": "The candidate provided a clear and accurate explanation of the differences between dynamic and static typing, and demonstrated a good understanding of type hinting in large-scale Python projects."
                 },
                 {
                     "question_number": 2,
                     "score": 9,
-                    "justification": "The candidate implemented a correct decorator to log execution time with a clear and concise code snippet."
+                    "justification": "The candidate presented a well-structured approach to designing a scalable data pipeline, and demonstrated knowledge of relevant tools and technologies."
                 },
                 {
                     "question_number": 3,
                     "score": 8,
-                    "justification": "The candidate correctly explained the difference between list and tuple, but could have provided more detailed examples."
+                    "justification": "The candidate provided a good example of using the multiprocessing module for CPU-bound tasks, but could have provided more details on optimization strategies."
                 },
                 {
                     "question_number": 4,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and concise explanation of generators, including a relevant example of iterating over a large file."
+                    "score": 2,
+                    "justification": "The candidate did not provide a direct answer to the question on optimizing memory usage, and the response did not demonstrate a clear understanding of the topic."
                 }
             ],
-            "overall_score": 8.75,
-            "summary": "The candidate demonstrates a strong understanding of fundamental Python concepts, including context management, decorators, data structures, and generators, with clear and concise explanations and examples."
+            "overall_score": 7.0,
+            "summary": "The candidate demonstrated strong technical proficiency in Python, particularly in areas such as type hinting and scalable data pipelines, but showed some weaknesses in optimizing memory usage."
         },
-        "interview_timestamp": "2025-08-26T22:14:45.408205"
-    },
-    {
-        "name": "Chandradip ROy",
-        "email": "sample@gmail.com",
-        "phone": "9874563210",
-        "experience": "2",
-        "position": "Web Developer",
-        "location": "udupi, india",
-        "tech_stack": "html",
-        "tech_questions_asked": "Based on the provided tech stack, which includes \"html\", I've generated four technical questions to gauge a candidate's proficiency. Here are the questions:\n\n1. What is the difference between the `id` and `class` attributes in HTML, and when would you use each? Can you provide an example of a scenario where using `id` would be more suitable than using `class`?\n\n2. How would you optimize the loading time of a web page with a large number of HTML elements? Can you describe a specific technique you've used in the past to improve page load times?\n\n3. Can you explain the concept of semantic HTML and its importance in modern web development? Provide an example of a situation where using semantic HTML would improve the accessibility and maintainability of a web page.\n\n4. How would you handle a situation where you need to add a dynamic piece of content to an HTML page, but the content is generated by a third-party service and can't be modified? Can you describe a specific solution you've used in the past to integrate external content into an HTML page?\n\nThese questions are designed to assess the candidate's understanding of HTML fundamentals, their problem-solving skills, and their ability to apply technical concepts to real-world scenarios.",
-        "tech_question_answers": "1. Difference between id and class in HTML\n\nid is unique to a single element, while class can be shared across multiple elements.\n\nUse id when you need to uniquely identify or manipulate one element (e.g., a form\u2019s submit button).\n\nUse class for styling or applying behavior to multiple elements.\n\n2. Optimizing page load time with many elements\n\nTechniques include lazy loading images, minifying CSS/JS, using a content delivery network (CDN), and reducing unnecessary DOM elements.\n\nIn practice, I\u2019ve optimized load time by implementing image compression and deferring non-critical scripts.\n\n3. Semantic HTML and its importance\n\nSemantic HTML uses meaningful tags (like <header>, <article>, <footer>) to describe structure.\n\nIt improves accessibility for screen readers, SEO ranking, and maintainability.\n\nFor example, replacing generic <div> tags with semantic tags in a blog layout makes the page easier for both developers and assistive technologies to understand.\n\n4. Handling dynamic third-party content\n\nWhen content comes from a third-party service, I typically embed it using <iframe>, scripts, or APIs.\n\nA solution I\u2019ve used is wrapping the external content in a container with custom styling, ensuring it blends with the site while keeping it isolated for security.",
-        "sentiment_analysis": {
-            "sentiment": "Neutral",
-            "justification": "The conversation started with a positive tone, but the candidate's initial responses were unclear or incomplete, and they required guidance and clarification. However, the candidate eventually provided detailed answers to the technical questions, showing a willingness to learn and improve."
-        },
-        "score_feedback": {
-            "evaluation": [
-                {
-                    "question_number": 1,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and concise explanation of the difference between id and class attributes."
-                },
-                {
-                    "question_number": 2,
-                    "score": 8,
-                    "justification": "The candidate listed several optimization techniques, but could have provided more specific examples or details."
-                },
-                {
-                    "question_number": 3,
-                    "score": 9,
-                    "justification": "The candidate provided a thorough explanation of semantic HTML and its importance in modern web development."
-                },
-                {
-                    "question_number": 4,
-                    "score": 8,
-                    "justification": "The candidate described a viable solution for handling dynamic third-party content, but could have elaborated on the implementation details."
-                }
-            ],
-            "overall_score": 8.5,
-            "summary": "The candidate demonstrates a strong understanding of HTML fundamentals and problem-solving skills, with room for improvement in providing more detailed examples and implementation details."
-        },
-        "interview_timestamp": "2025-08-26T22:21:42.118292"
-    },
-    {
-        "name": "sdfds",
-        "email": "sadsf@gmail.com",
-        "phone": "98745621",
-        "experience": "3",
-        "position": "web developer",
-        "location": "udupi, india",
-        "tech_stack": "html",
-        "tech_questions_asked": "1. Can you explain the difference between semantic HTML5 elements and non-semantic elements, and provide an example of when you would use each?\n2. How do you optimize the load time of a web page, and what tools would you use to measure performance?\n3. What is your approach to structuring a complex HTML document, and how do you ensure accessibility and maintainability?\n4. How do you handle browser compatibility issues when using HTML5 features, and what are some common workarounds you've used in the past?",
-        "tech_question_answers": "Difference between id and class in HTML\nid is unique to a single element, while class can be shared across multiple elements.\n\nUse id when you need to uniquely identify or manipulate one element (e.g., a form\u2019s submit button).\n\nUse class for styling or applying behavior to multiple elements.\n\nOptimizing page load time with many elements\nTechniques include lazy loading images, minifying CSS/JS, using a content delivery network (CDN), and reducing unnecessary DOM elements.\n\nIn practice, I\u2019ve optimized load time by implementing image compression and deferring non-critical scripts.\n\nSemantic HTML and its importance\nSemantic HTML uses meaningful tags (like <header>, <article>, <footer>) to describe structure.\n\nIt improves accessibility for screen readers, SEO ranking, and maintainability.\n\nFor example, replacing generic <div> tags with semantic tags in a blog layout makes the page easier for both developers and assistive technologies to understand.\n\nHandling dynamic third-party content\nWhen content comes from a third-party service, I typically embed it using <iframe>, scripts, or APIs.\n\nA solution I\u2019ve used is wrapping the external content in a container with custom styling, ensuring it blends with the site while keeping it isolated for security.",
-        "score_feedback": {
-            "evaluation": [
-                {
-                    "question_number": 1,
-                    "score": 6,
-                    "justification": "The candidate provided an explanation of id and class, but did not directly address semantic HTML5 elements."
-                },
-                {
-                    "question_number": 2,
-                    "score": 8,
-                    "justification": "The candidate listed several effective techniques for optimizing page load time."
-                },
-                {
-                    "question_number": 3,
-                    "score": 9,
-                    "justification": "The candidate provided a clear and concise explanation of the importance of semantic HTML and its benefits."
-                },
-                {
-                    "question_number": 4,
-                    "score": 7,
-                    "justification": "The candidate provided a relevant solution for handling dynamic third-party content, but did not directly address browser compatibility issues."
-                }
-            ],
-            "overall_score": 7.5,
-            "summary": "The candidate demonstrates a good understanding of HTML concepts, but sometimes struggles to directly address the question being asked."
-        },
-        "interview_timestamp": "2025-08-26T22:31:20.497188"
+        "interview_timestamp": "2025-08-26T22:55:20.280229"
     }
 ]

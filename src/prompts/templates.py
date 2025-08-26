@@ -53,35 +53,24 @@ def get_scoring_prompt(questions: str, answers: str) -> str:
     Generates a prompt to score the candidate's answers and return a JSON object.
     """
     return f"""
-    You are an expert technical interviewer. Your task is to evaluate a candidate's answers to a set of technical questions and provide a structured JSON response.
+    You are an expert technical interviewer. Your task is to critically evaluate a candidate's answers to a set of technical questions and provide a structured JSON response.
+
+    **CRITICAL INSTRUCTION:** You must first determine if the candidate's answers actually correspond to the questions asked. If an answer seems to be for a completely different question, you must give it a very low score (1 or 2) and state in the justification that the answer was not relevant to the question asked.
 
     Here are the numbered questions that were asked:
     ---
     {questions}
     ---
 
-    Here are the candidate's answers. Note that the candidate may not have followed the numbering format, so you must intelligently map their answers to the corresponding questions.
+    Here are the candidate's answers. Intelligently map their answers to the corresponding questions, even if the numbering is incorrect.
     ---
     {answers}
     ---
 
-    Please perform the following and return ONLY a single valid JSON object with no other text or explanations:
+    Please perform the following and return ONLY a single valid JSON object:
     1.  Create a key "evaluation" which is a list of objects. Each object should represent one question and have three keys: "question_number" (int), "score" (int out of 10), and "justification" (a brief, one-sentence reason for the score).
     2.  Create a key "overall_score" (float, average of the individual scores).
     3.  Create a key "summary" (string, a 2-3 sentence overview of the candidate's technical proficiency).
-
-    Example of the required JSON format:
-    {{
-      "evaluation": [
-        {{
-          "question_number": 1,
-          "score": 8,
-          "justification": "The candidate provided a solid and accurate explanation."
-        }}
-      ],
-      "overall_score": 8.0,
-      "summary": "The candidate demonstrates a good understanding of the core concepts."
-    }}
     """
 
 def get_sentiment_analysis_prompt(conversation_history: str) -> str:
@@ -98,10 +87,4 @@ def get_sentiment_analysis_prompt(conversation_history: str) -> str:
     ---
     {conversation_history}
     ---
-
-    Example of the required JSON format:
-    {{
-      "sentiment": "Positive",
-      "justification": "The candidate was polite, cooperative, and provided detailed answers."
-    }}
     """
