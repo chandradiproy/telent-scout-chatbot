@@ -29,15 +29,10 @@ class Chatbot:
     """Handles the chatbot's conversation logic and state."""
 
     def __init__(self):
-        # BUG FIX: The instructions are now correctly aligned with the stage they are for.
         self.conversation_stages = [
-            # The first prompt is hardcoded in app.py, so this stage is just for state
             ("get_language", "This is a placeholder as the first real question is for the name."),
-            # After getting the language, we transition to 'get_name' and ask this question
             ("get_name", "Ask for the user's full name."),
-            # After getting the name, we transition to 'get_email' and ask this question
             ("get_email", "Ask for the user's email address."),
-            # And so on...
             ("get_phone", "Ask for the user's phone number."),
             ("get_experience", "Ask for the user's years of professional experience."),
             ("get_position", "Ask for the position they are interested in."),
@@ -101,14 +96,12 @@ class Chatbot:
             return "Thank you for your time. Have a great day!"
 
         # --- More explicit state handling and validation logic ---
-        # Process the input for the CURRENT stage first.
         if current_stage == "get_language":
             st.session_state.candidate_info['language'] = user_prompt
         elif current_stage == "get_name":
             st.session_state.candidate_info['name'] = user_prompt
         elif current_stage == "get_email":
             if not helpers.is_valid_email(user_prompt):
-                # If validation fails, return an error message without changing the stage.
                 return self._call_llm("The user provided an invalid email. Politely ask them to provide a valid one.")
             st.session_state.candidate_info['email'] = user_prompt
         elif current_stage.startswith("get_"):
@@ -124,7 +117,9 @@ class Chatbot:
                 st.session_state.conversation_stage = "tech_answers_provided"
                 return self._score_answers()
             else:
-                return self._call_llm("The user is trying to evade the question. Politely but firmly ask them to answer the questions provided.")
+                # BUG FIX: Use a much more direct and simple instruction.
+                evasion_instruction = "Your purpose is to get answers to the questions. Please state that you cannot regenerate questions and ask the user to answer the ones provided so you can proceed."
+                return self._call_llm(evasion_instruction)
 
         # Now, find the NEXT stage and get its instruction.
         next_stage_index = [i for i, (name, _) in enumerate(self.conversation_stages) if name == current_stage][0] + 1
